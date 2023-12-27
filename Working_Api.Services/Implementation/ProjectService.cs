@@ -7,35 +7,38 @@ using Working_Api.Services.Interface;
 
 namespace Working_Api.Services.Implementation
 {
-    public class ServiceService(IBaseRepository<Service> repositoryService,IManagerFile managerFile) : IServiceService
+    public class ProjectService(IBaseRepository<Project> repository,
+        IManagerFile managerFile) : IProjectService
     {
-        private readonly IBaseRepository<Service> _repositoryService = repositoryService;
+        private readonly IBaseRepository<Project> _repository = repository;
         private readonly IManagerFile _managerFile = managerFile;
 
-        public async Task<IBaseResponse<bool>> Create(ServiceDTO serviceDTO)
+        public async Task<IBaseResponse<bool>> Create(ProjectDTO projectDTO)
         {
             var baseResponse = Factory<bool>.GetBaseResponse();
             try
             {
-                if(serviceDTO == null) 
+                if (projectDTO == null)
                 {
                     baseResponse.Description = "Пустая модель";
                     baseResponse.StatusCode = 404;
                     return baseResponse;
                 }
 
-                var service = new Service
+                var project = new Project()
                 {
-                    NameService = serviceDTO.NameService,
-                    Description = serviceDTO.Description,
-                    image = await _managerFile.SaveFile(serviceDTO.image)
+                    NameProject = projectDTO.NameProject,
+                    Description = projectDTO.Description,
+                    Link = projectDTO.Link,
+                    Image = await _managerFile.SaveFile(projectDTO.Image)
+
                 };
 
-                baseResponse.Data = await _repositoryService.Create(service);
+                baseResponse.Data = await _repository.Create(project);
                 baseResponse.StatusCode = 204;
                 return baseResponse;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 baseResponse.Description = "Проблема с сервисом";
                 baseResponse.StatusCode = 500;
@@ -54,50 +57,49 @@ namespace Working_Api.Services.Implementation
                     baseResponse.StatusCode = 400;
                     return baseResponse;
                 }
-                var service = await _repositoryService.GetById(id);
+                var project = await _repository.GetById(id);
 
-                if(service == null)
+                if (project == null)
                 {
-                    baseResponse.Description = $"Услуга с таким id не найдена : id {id}";
+                    baseResponse.Description = $"Проект с таким id не найдена : id {id}";
                     baseResponse.StatusCode = 404;
                     return baseResponse;
                 }
 
-                baseResponse.Data = await _repositoryService.Delete(service);
+                baseResponse.Data = await _repository.Delete(project);
                 baseResponse.StatusCode = 201;
                 return baseResponse;
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 baseResponse.Description = "Проблема с сервисом";
                 baseResponse.StatusCode = 500;
                 return baseResponse;
             }
-            
         }
 
-        public async Task<IBaseResponse<Service>> GetService(int Id)
+        public async Task<IBaseResponse<Project>> GetProject(int id)
         {
-            var baseResponse = Factory<Service>.GetBaseResponse();
+            var baseResponse = Factory<Project>.GetBaseResponse();
             try
             {
-                if (Id == 0)
+                if (id == 0)
                 {
-                    baseResponse.Description = "Ведите id";
+                    baseResponse.Description = $"Не допустимый id:{id}"; ;
                     baseResponse.StatusCode = 400;
                     return baseResponse;
                 }
 
-                var service = await _repositoryService.GetById(Id);
+                var project = await _repository.GetById(id);
 
-                if (service == null)
+                if (project == null)
                 {
-                    baseResponse.Description = "Услуга не найден";
+                    baseResponse.Description = $"Проект с таким id не найдена : id {id}";
                     baseResponse.StatusCode = 404;
                     return baseResponse;
                 }
 
-                baseResponse.Data = service;
+                baseResponse.Data = project;
                 baseResponse.StatusCode = 200;
                 return baseResponse;
             }
@@ -109,21 +111,21 @@ namespace Working_Api.Services.Implementation
             }
         }
 
-        public async Task<IBaseResponse<IEnumerable<Service>>> GetServices()
+        public async Task<IBaseResponse<IEnumerable<Project>>> GetProjects()
         {
-            var baseResponse = Factory<Service>.GetBaseResponseAll();
+            var baseResponse = Factory<Project>.GetBaseResponseAll();
             try
             {
-                var services = await _repositoryService.GetAll();
+                var projects = await _repository.GetAll();
 
-                if (services.Count == 0)
+                if (projects.Count == 0)
                 {
                     baseResponse.Description = "Нет значений";
                     baseResponse.StatusCode = 404;
                     return baseResponse;
                 }
 
-                baseResponse.Data = services;
+                baseResponse.Data = projects;
                 baseResponse.StatusCode = 200;
                 return baseResponse;
             }

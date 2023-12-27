@@ -7,35 +7,33 @@ using Working_Api.Services.Interface;
 
 namespace Working_Api.Services.Implementation
 {
-    public class ServiceService(IBaseRepository<Service> repositoryService,IManagerFile managerFile) : IServiceService
+    public class PostService(IBaseRepository<Post> repository) : IPostService
     {
-        private readonly IBaseRepository<Service> _repositoryService = repositoryService;
-        private readonly IManagerFile _managerFile = managerFile;
+        private readonly IBaseRepository<Post> _repository = repository;
 
-        public async Task<IBaseResponse<bool>> Create(ServiceDTO serviceDTO)
+        public async Task<IBaseResponse<bool>> Create(PostDTO postDTO)
         {
             var baseResponse = Factory<bool>.GetBaseResponse();
             try
             {
-                if(serviceDTO == null) 
+                if (postDTO == null)
                 {
                     baseResponse.Description = "Пустая модель";
                     baseResponse.StatusCode = 404;
                     return baseResponse;
                 }
 
-                var service = new Service
+                var post = new Post
                 {
-                    NameService = serviceDTO.NameService,
-                    Description = serviceDTO.Description,
-                    image = await _managerFile.SaveFile(serviceDTO.image)
+                    NamePost = postDTO.NamePost,
+                    Description = postDTO.Description,
                 };
 
-                baseResponse.Data = await _repositoryService.Create(service);
+                baseResponse.Data = await _repository.Create(post);
                 baseResponse.StatusCode = 204;
                 return baseResponse;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 baseResponse.Description = "Проблема с сервисом";
                 baseResponse.StatusCode = 500;
@@ -54,45 +52,46 @@ namespace Working_Api.Services.Implementation
                     baseResponse.StatusCode = 400;
                     return baseResponse;
                 }
-                var service = await _repositoryService.GetById(id);
+                
+                var service = await _repository.GetById(id);
 
-                if(service == null)
+                if (service == null)
                 {
-                    baseResponse.Description = $"Услуга с таким id не найдена : id {id}";
+                    baseResponse.Description = $"Должность с таким id не найдена : id {id}";
                     baseResponse.StatusCode = 404;
                     return baseResponse;
                 }
 
-                baseResponse.Data = await _repositoryService.Delete(service);
+                baseResponse.Data = await  _repository.Delete(service);
                 baseResponse.StatusCode = 201;
                 return baseResponse;
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 baseResponse.Description = "Проблема с сервисом";
                 baseResponse.StatusCode = 500;
                 return baseResponse;
             }
-            
         }
 
-        public async Task<IBaseResponse<Service>> GetService(int Id)
+        public async Task<IBaseResponse<Post>> GetPost(int Id)
         {
-            var baseResponse = Factory<Service>.GetBaseResponse();
+
+            var baseResponse = Factory<Post>.GetBaseResponse();
             try
             {
                 if (Id == 0)
                 {
-                    baseResponse.Description = "Ведите id";
+                    baseResponse.Description = $"Не допустимый id:{Id}";
                     baseResponse.StatusCode = 400;
                     return baseResponse;
                 }
 
-                var service = await _repositoryService.GetById(Id);
+                var service = await _repository.GetById(Id);
 
                 if (service == null)
                 {
-                    baseResponse.Description = "Услуга не найден";
+                    baseResponse.Description = $"Должность с таким Id не найдена : Id{Id}";
                     baseResponse.StatusCode = 404;
                     return baseResponse;
                 }
@@ -109,12 +108,12 @@ namespace Working_Api.Services.Implementation
             }
         }
 
-        public async Task<IBaseResponse<IEnumerable<Service>>> GetServices()
+        public async Task<IBaseResponse<IEnumerable<Post>>> GetPosts()
         {
-            var baseResponse = Factory<Service>.GetBaseResponseAll();
+            var baseResponse = Factory<Post>.GetBaseResponseAll();
             try
             {
-                var services = await _repositoryService.GetAll();
+                var services = await _repository.GetAll();
 
                 if (services.Count == 0)
                 {

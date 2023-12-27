@@ -7,35 +7,46 @@ using Working_Api.Services.Interface;
 
 namespace Working_Api.Services.Implementation
 {
-    public class ServiceService(IBaseRepository<Service> repositoryService,IManagerFile managerFile) : IServiceService
+    public class WorkerService(IBaseRepository<Worker> repository,
+        IManagerFile managerFile, IPostService postService) : IWorkerService
     {
-        private readonly IBaseRepository<Service> _repositoryService = repositoryService;
+        private readonly IBaseRepository<Worker> _repository = repository;
         private readonly IManagerFile _managerFile = managerFile;
+        private readonly IPostService _postService = postService;
 
-        public async Task<IBaseResponse<bool>> Create(ServiceDTO serviceDTO)
+        public async Task<IBaseResponse<bool>> Create(WorkerDTO workerDTO)
         {
             var baseResponse = Factory<bool>.GetBaseResponse();
             try
             {
-                if(serviceDTO == null) 
+                if (workerDTO == null)
                 {
                     baseResponse.Description = "Пустая модель";
                     baseResponse.StatusCode = 404;
                     return baseResponse;
                 }
+                var post = await _postService.GetPost(workerDTO.PostId);
 
-                var service = new Service
+                if(post.StatusCode == 404)
                 {
-                    NameService = serviceDTO.NameService,
-                    Description = serviceDTO.Description,
-                    image = await _managerFile.SaveFile(serviceDTO.image)
+                    baseResponse.Description = $"Должность с таким id не найдена : id {workerDTO.PostId}";
+                    baseResponse.StatusCode = 404;
+                    return baseResponse;
+                }
+                var worker = new Worker()
+                {
+                    NameWorker = workerDTO.NameWorker,
+                    Post = post.Data,
+                    PostId = post.Data.Id,
+                    Surname = workerDTO.Surname,
+                    Image = await _managerFile.SaveFile(workerDTO.Image)
                 };
 
-                baseResponse.Data = await _repositoryService.Create(service);
+                baseResponse.Data = await _repository.Create(worker);
                 baseResponse.StatusCode = 204;
                 return baseResponse;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 baseResponse.Description = "Проблема с сервисом";
                 baseResponse.StatusCode = 500;
@@ -54,50 +65,49 @@ namespace Working_Api.Services.Implementation
                     baseResponse.StatusCode = 400;
                     return baseResponse;
                 }
-                var service = await _repositoryService.GetById(id);
+                var worker = await _repository.GetById(id);
 
-                if(service == null)
+                if (worker == null)
                 {
-                    baseResponse.Description = $"Услуга с таким id не найдена : id {id}";
+                    baseResponse.Description = $"Сотрудник с таким id не найдена : id {id}";
                     baseResponse.StatusCode = 404;
                     return baseResponse;
                 }
 
-                baseResponse.Data = await _repositoryService.Delete(service);
+                baseResponse.Data = await _repository.Delete(worker);
                 baseResponse.StatusCode = 201;
                 return baseResponse;
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 baseResponse.Description = "Проблема с сервисом";
                 baseResponse.StatusCode = 500;
                 return baseResponse;
             }
-            
         }
 
-        public async Task<IBaseResponse<Service>> GetService(int Id)
+        public async Task<IBaseResponse<Worker>> GetWorker(int id)
         {
-            var baseResponse = Factory<Service>.GetBaseResponse();
+            var baseResponse = Factory<Worker>.GetBaseResponse();
             try
             {
-                if (Id == 0)
+                if (id == 0)
                 {
-                    baseResponse.Description = "Ведите id";
+                    baseResponse.Description = $"Не допустимый id:{id}"; ;
                     baseResponse.StatusCode = 400;
                     return baseResponse;
                 }
 
-                var service = await _repositoryService.GetById(Id);
+                var worker = await _repository.GetById(id);
 
-                if (service == null)
+                if (worker == null)
                 {
-                    baseResponse.Description = "Услуга не найден";
+                    baseResponse.Description = $"Сотрудник с таким id не найдена : id {id}";
                     baseResponse.StatusCode = 404;
                     return baseResponse;
                 }
 
-                baseResponse.Data = service;
+                baseResponse.Data = worker;
                 baseResponse.StatusCode = 200;
                 return baseResponse;
             }
@@ -109,21 +119,21 @@ namespace Working_Api.Services.Implementation
             }
         }
 
-        public async Task<IBaseResponse<IEnumerable<Service>>> GetServices()
+        public async Task<IBaseResponse<IEnumerable<Worker>>> GetWorkers()
         {
-            var baseResponse = Factory<Service>.GetBaseResponseAll();
+            var baseResponse = Factory<Worker>.GetBaseResponseAll();
             try
             {
-                var services = await _repositoryService.GetAll();
+                var workers = await _repository.GetAll();
 
-                if (services.Count == 0)
+                if (workers.Count == 0)
                 {
                     baseResponse.Description = "Нет значений";
                     baseResponse.StatusCode = 404;
                     return baseResponse;
                 }
 
-                baseResponse.Data = services;
+                baseResponse.Data = workers;
                 baseResponse.StatusCode = 200;
                 return baseResponse;
             }
@@ -134,5 +144,6 @@ namespace Working_Api.Services.Implementation
                 return baseResponse;
             }
         }
+
     }
 }
