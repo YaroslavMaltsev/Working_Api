@@ -11,14 +11,21 @@ namespace Working_Api.DAL.Repositories
 
         public async Task<bool> Create(Project entity)
         {
-            var saved = await _context.SaveChangesAsync();
+            await _context.AddAsync(entity);
 
-            return saved != 0 ? true : false;
+            return await Save();
         }
 
         public async Task<bool> Delete(Project entity)
         {
             _context.Remove(entity);
+
+            return await Save();
+        }
+
+        public async Task<bool> DeleteAll(IEnumerable<Project> entities)
+        {
+            _context.RemoveRange(entities);
 
             return await Save();
         }
@@ -38,6 +45,13 @@ namespace Working_Api.DAL.Repositories
             var saved = await _context.SaveChangesAsync();
 
             return saved != 0 ? true : false;
+        }
+
+        public async Task<bool> Update(Project entity)
+        {
+            _context.Update(entity);
+
+            return await Save();
         }
     }
 }

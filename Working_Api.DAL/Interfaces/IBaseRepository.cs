@@ -1,6 +1,6 @@
 ﻿namespace Working_Api.DAL.Interfaces
 {
-    public interface IBaseRepository<T>
+    public interface IBaseRepository<T> 
     {
         public Task<List<T>> GetAll();
 
@@ -8,9 +8,11 @@
 
         public Task<bool> Create(T entity);
 
-        Task<bool> Save();
+        public Task<bool> Save();
+        public Task<bool> Update(T entity);
 
-        Task<bool> Delete(T entity);
+        public Task<bool> Delete(T entity);
 
+        public Task<bool> DeleteAll(IEnumerable<T> entities);
     }
 }

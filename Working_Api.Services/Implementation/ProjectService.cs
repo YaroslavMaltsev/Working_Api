@@ -45,7 +45,34 @@ namespace Working_Api.Services.Implementation
                 return baseResponse;
             }
         }
+        public async Task<IBaseResponse<bool>> DeleteAll()
+        {
 
+            var baseResponse = Factory<bool>.GetBaseResponse();
+            try
+            {
+
+                var project = await _repository.GetAll();
+
+                if (project == null)
+                {
+                    baseResponse.Description = $"Таблица пуста";
+                    baseResponse.StatusCode = 404;
+                    return baseResponse;
+                }
+                var projectDelete = await _repository.DeleteAll(project);
+
+                baseResponse.Data = projectDelete;
+                baseResponse.StatusCode = 200;
+                return baseResponse;
+            }
+            catch (Exception ex)
+            {
+                baseResponse.Description = "Проблема с сервисом";
+                baseResponse.StatusCode = 500;
+                return baseResponse;
+            }
+        }
         public async Task<IBaseResponse<bool>> Delete(int id)
         {
             var baseResponse = Factory<bool>.GetBaseResponse();
@@ -85,7 +112,7 @@ namespace Working_Api.Services.Implementation
             {
                 if (id == 0)
                 {
-                    baseResponse.Description = $"Не допустимый id:{id}"; ;
+                    baseResponse.Description = $"Не допустимый id:{id}";
                     baseResponse.StatusCode = 400;
                     return baseResponse;
                 }
@@ -131,6 +158,45 @@ namespace Working_Api.Services.Implementation
             }
             catch (Exception ex)
             {
+                baseResponse.Description = "Проблема с сервисом";
+                baseResponse.StatusCode = 500;
+                return baseResponse;
+            }
+        }
+
+        public Task<IBaseResponse<bool>> Update(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<IBaseResponse<bool>> UpdateImage(int id, UpdateFileDTO updateFileDTO)
+        {
+            var baseResponse = Factory<bool>.GetBaseResponse();
+            try
+            {
+                if (id <= 0)
+                {
+                    baseResponse.Description = $"Не допустимый id:{id}";
+                    baseResponse.StatusCode = 400;
+                    return baseResponse;
+                }
+                var projectUpdate = await _repository.GetById(id);
+
+                if (projectUpdate == null)
+                {
+                    baseResponse.Description = $"Проект с таким id не найдена : id {id}";
+                    baseResponse.StatusCode = 404;
+                    return baseResponse;
+                }
+                projectUpdate.Image = await _managerFile.SaveFile(updateFileDTO.image);
+
+                await _repository.Update(projectUpdate);
+                baseResponse.StatusCode = 200;
+                return baseResponse;
+            }
+            catch(Exception ex)
+            {
+
                 baseResponse.Description = "Проблема с сервисом";
                 baseResponse.StatusCode = 500;
                 return baseResponse;

@@ -1,5 +1,4 @@
-﻿using Working_Api.Domain.Entities;
-using Working_Api.Domain.Interface;
+﻿using Working_Api.Domain.Interface;
 using Working_Api.Domain.Response;
 
 namespace Working_Api.Services.Contains

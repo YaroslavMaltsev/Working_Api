@@ -10,5 +10,8 @@ namespace Working_Api.Services.Interface
         Task<IBaseResponse<bool>> Delete(int id);
         Task<IBaseResponse<Project>> GetProject(int id);
         Task<IBaseResponse<IEnumerable<Project>>> GetProjects();
+        public Task<IBaseResponse<bool>> DeleteAll();
+        public Task<IBaseResponse<bool>> Update(int id);
+        public Task<IBaseResponse<bool>> UpdateImage(int id, UpdateFileDTO updateFileDTO);
     }
 }

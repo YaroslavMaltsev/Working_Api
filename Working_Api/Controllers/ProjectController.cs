@@ -11,6 +11,35 @@ namespace Working_Api.Controllers
     {
         private readonly IProjectService _projectService = projectService;
 
+        [HttpPut]
+        [Route("{id:int}" , Name = "UpdateImage")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult> UpdateImage(int id , UpdateFileDTO updateFileDTO)
+        {
+            var project = await _projectService.UpdateImage(id, updateFileDTO);
+
+            return Ok(project);
+        }
+
+        [HttpDelete]
+        [Route("ProjectDeleteAll")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> DeleteAll()
+        {
+            var projectDelete = await _projectService.DeleteAll();
+
+            if (projectDelete.StatusCode == 404)
+                return NotFound(projectDelete.Description);
+
+            if (projectDelete.StatusCode == 500)
+                return Problem(projectDelete.Description);
+
+            return NoContent();
+        }
         [HttpDelete]
         [Route("{id:int}", Name = "ProjectDelete")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -18,16 +47,16 @@ namespace Working_Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> Delete(int id)
         {
-            var poroject = await _projectService.Delete(id);
+            var project = await _projectService.Delete(id);
 
-            if (poroject.StatusCode == 404)
-                return NotFound(poroject.Description);
+            if (project.StatusCode == 404)
+                return NotFound(project.Description);
 
-            if (poroject.StatusCode == 400)
-                return BadRequest(poroject.Description);
+            if (project.StatusCode == 400)
+                return BadRequest(project.Description);
 
-            if (poroject.StatusCode == 500)
-                return Problem(poroject.Description);
+            if (project.StatusCode == 500)
+                return Problem(project.Description);
 
             return NoContent();
         }

@@ -7,7 +7,7 @@ using Working_Api.Services.Interface;
 
 namespace Working_Api.Services.Implementation
 {
-    public class ServiceService(IBaseRepository<Service> repositoryService,IManagerFile managerFile) : IServiceService
+    public class ServiceService(IBaseRepository<Service> repositoryService, IManagerFile managerFile) : IServiceService
     {
         private readonly IBaseRepository<Service> _repositoryService = repositoryService;
         private readonly IManagerFile _managerFile = managerFile;
@@ -17,7 +17,7 @@ namespace Working_Api.Services.Implementation
             var baseResponse = Factory<bool>.GetBaseResponse();
             try
             {
-                if(serviceDTO == null) 
+                if (serviceDTO == null)
                 {
                     baseResponse.Description = "Пустая модель";
                     baseResponse.StatusCode = 404;
@@ -35,14 +35,41 @@ namespace Working_Api.Services.Implementation
                 baseResponse.StatusCode = 204;
                 return baseResponse;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 baseResponse.Description = "Проблема с сервисом";
                 baseResponse.StatusCode = 500;
                 return baseResponse;
             }
         }
+        public async Task<IBaseResponse<bool>> DeleteAll()
+        {
 
+            var baseResponse = Factory<bool>.GetBaseResponse();
+            try
+            {
+
+                var services = await _repositoryService.GetAll();
+
+                if (services == null)
+                {
+                    baseResponse.Description = $"Таблица пуста";
+                    baseResponse.StatusCode = 404;
+                    return baseResponse;
+                }
+                var serviveDelete = await _repositoryService.DeleteAll(services);
+
+                baseResponse.Data = serviveDelete;
+                baseResponse.StatusCode = 200;
+                return baseResponse;
+            }
+            catch (Exception ex)
+            {
+                baseResponse.Description = "Проблема с сервисом";
+                baseResponse.StatusCode = 500;
+                return baseResponse;
+            }
+        }
         public async Task<IBaseResponse<bool>> Delete(int id)
         {
             var baseResponse = Factory<bool>.GetBaseResponse();
@@ -56,7 +83,7 @@ namespace Working_Api.Services.Implementation
                 }
                 var service = await _repositoryService.GetById(id);
 
-                if(service == null)
+                if (service == null)
                 {
                     baseResponse.Description = $"Услуга с таким id не найдена : id {id}";
                     baseResponse.StatusCode = 404;
@@ -67,13 +94,13 @@ namespace Working_Api.Services.Implementation
                 baseResponse.StatusCode = 201;
                 return baseResponse;
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 baseResponse.Description = "Проблема с сервисом";
                 baseResponse.StatusCode = 500;
                 return baseResponse;
             }
-            
+
         }
 
         public async Task<IBaseResponse<Service>> GetService(int Id)
@@ -133,6 +160,11 @@ namespace Working_Api.Services.Implementation
                 baseResponse.StatusCode = 500;
                 return baseResponse;
             }
+        }
+
+        public Task<IBaseResponse<bool>> Update(int id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

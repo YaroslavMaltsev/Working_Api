@@ -52,7 +52,7 @@ namespace Working_Api.Services.Implementation
                     baseResponse.StatusCode = 400;
                     return baseResponse;
                 }
-                
+
                 var service = await _repository.GetById(id);
 
                 if (service == null)
@@ -62,8 +62,37 @@ namespace Working_Api.Services.Implementation
                     return baseResponse;
                 }
 
-                baseResponse.Data = await  _repository.Delete(service);
+                baseResponse.Data = await _repository.Delete(service);
                 baseResponse.StatusCode = 201;
+                return baseResponse;
+            }
+            catch (Exception ex)
+            {
+                baseResponse.Description = "Проблема с сервисом";
+                baseResponse.StatusCode = 500;
+                return baseResponse;
+            }
+        }
+
+        public async Task<IBaseResponse<bool>> DeleteAll()
+        {
+
+            var baseResponse = Factory<bool>.GetBaseResponse();
+            try
+            {
+
+                var posts = await _repository.GetAll();
+
+                if (posts == null)
+                {
+                    baseResponse.Description = $"Таблица пуста";
+                    baseResponse.StatusCode = 404;
+                    return baseResponse;
+                }
+                var postDelete = await _repository.DeleteAll(posts);
+
+                baseResponse.Data = postDelete;
+                baseResponse.StatusCode = 200;
                 return baseResponse;
             }
             catch (Exception ex)
@@ -87,16 +116,16 @@ namespace Working_Api.Services.Implementation
                     return baseResponse;
                 }
 
-                var service = await _repository.GetById(Id);
+                var post = await _repository.GetById(Id);
 
-                if (service == null)
+                if (post == null)
                 {
                     baseResponse.Description = $"Должность с таким Id не найдена : Id{Id}";
                     baseResponse.StatusCode = 404;
                     return baseResponse;
                 }
 
-                baseResponse.Data = service;
+                baseResponse.Data = post;
                 baseResponse.StatusCode = 200;
                 return baseResponse;
             }
@@ -133,5 +162,42 @@ namespace Working_Api.Services.Implementation
                 return baseResponse;
             }
         }
+
+        public async Task<IBaseResponse<bool>> Update(int id, PostDTO postDTO)
+        {
+            var baseResponse = Factory<bool>.GetBaseResponse();
+            try
+            {
+                if(id == 0)
+                {
+                    baseResponse.Description = $"Не допустимый id:{id}";
+                    baseResponse.StatusCode = 404;
+                    return baseResponse;
+                }
+                var post = await _repository.GetById(id);
+
+                if(post == null)
+                {
+                    baseResponse.Description = $"Должность с таким Id не найдена : Id{id}";
+                    baseResponse.StatusCode = 400;
+                    return baseResponse;
+                }
+                post.NamePost = postDTO.NamePost;
+                post.Description = postDTO.Description;
+                
+                var postUpdate = await _repository.Update(post);
+
+                baseResponse.Data = postUpdate;
+                baseResponse.StatusCode = 200;
+                return baseResponse;
+            }
+            catch 
+            {
+                baseResponse.Description = "Проблема с сервисом";
+                baseResponse.StatusCode = 500;
+                return baseResponse;
+            }
+        }
+
     }
 }

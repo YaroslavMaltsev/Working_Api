@@ -5,9 +5,12 @@ namespace Working_Api.Services.Interface
 {
     public interface IServiceService
     {
-        public Task<IBaseResponse<bool>> Create(ServiceDTO serviceDTO); 
+        public Task<IBaseResponse<bool>> Create(ServiceDTO serviceDTO);
         public Task<IBaseResponse<bool>> Delete(int id);
         public Task<IBaseResponse<Service>> GetService(int Id);
         public Task<IBaseResponse<IEnumerable<Service>>> GetServices();
+        public Task<IBaseResponse<bool>> DeleteAll();
+        public Task<IBaseResponse<bool>> Update(int id);
+
     }
 }

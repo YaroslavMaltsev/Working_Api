@@ -16,16 +16,16 @@ namespace Working_Api
             var builder = WebApplication.CreateBuilder(args);
 
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers().AddNewtonsoftJson();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped<IBaseRepository<Service>, ServicesRepository>();
             builder.Services.AddScoped<IServiceService, ServiceService>();
             builder.Services.AddScoped<IBaseRepository<Post>, PostRepository>();
             builder.Services.AddTransient<IPostService, PostService>();
-            builder.Services.AddScoped<IBaseRepository<Worker>,  WorkerRepository>();
+            builder.Services.AddScoped<IBaseRepository<Worker>, WorkerRepository>();
             builder.Services.AddScoped<IWorkerService, WorkerService>();
-            builder.Services.AddScoped<IBaseRepository<Project> , ProjectRepository>();
+            builder.Services.AddScoped<IBaseRepository<Project>, ProjectRepository>();
             builder.Services.AddScoped<IProjectService, ProjectService>();
             builder.Services.AddScoped<IManagerFile, ManagerFile>();
             builder.Services.AddDbContext<ApplicationDbContext>(option =>

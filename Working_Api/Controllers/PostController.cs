@@ -9,6 +9,42 @@ namespace Working_Api.Controllers
     public class PostController(IPostService postService) : ControllerBase
     {
         private readonly IPostService _postService = postService;
+        
+        [HttpPut]
+        [Route("{id:int}" , Name = "PostUpdate")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> Update(int id ,PostDTO postDTO)
+        {
+            var postUpdate = await _postService.Update(id, postDTO);
+
+            if (postUpdate.StatusCode == 400)
+                return BadRequest(postUpdate.Description);
+
+            if (postUpdate.StatusCode == 404)
+                return NotFound(postUpdate.Description);
+
+            return Ok(postUpdate);
+        }
+
+        [HttpDelete]
+        [Route("PostDeleteAll")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> DeleteAll()
+        {
+            var postDelete = await _postService.DeleteAll();
+
+            if (postDelete.StatusCode == 404)
+                return NotFound(postDelete.Description);
+
+            if (postDelete.StatusCode == 500)
+                return Problem(postDelete.Description);
+
+            return NoContent();
+        }
 
         [HttpDelete]
         [Route("{id:int}", Name = "PostDelete")]

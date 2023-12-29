@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Working_Api.Domain.DTOs;
+using Working_Api.Services.Implementation;
 using Working_Api.Services.Interface;
 
 namespace Working_Api.Controllers
@@ -11,11 +12,27 @@ namespace Working_Api.Controllers
         private readonly IServiceService _serviceService = serviceService;
 
         [HttpDelete]
+        [Route("ServiceDeleteAll")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> DeleteAll()
+        {
+            var serviceDelete = await _serviceService.DeleteAll();
+
+            if (serviceDelete.StatusCode == 404)
+                return NotFound(serviceDelete.Description);
+
+            if (serviceDelete.StatusCode == 500)
+                return Problem(serviceDelete.Description);
+
+            return NoContent();
+        }
+        [HttpDelete]
         [Route("{id:int}", Name = "ServiceDelete")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> Delete (int id)
+        public async Task<ActionResult> Delete(int id)
         {
             var serviceDelete = await _serviceService.Delete(id);
 
@@ -39,11 +56,11 @@ namespace Working_Api.Controllers
         public async Task<ActionResult> Create([FromQuery] ServiceDTO serviceDTO)
         {
             var service = await _serviceService.Create(serviceDTO);
-            
+
             if (service.StatusCode == 404)
                 return NotFound(service.Description);
 
-            if(service.StatusCode == 500)
+            if (service.StatusCode == 500)
                 return Problem(service.Description);
 
             return NoContent();

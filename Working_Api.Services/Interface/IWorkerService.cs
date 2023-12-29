@@ -10,5 +10,8 @@ namespace Working_Api.Services.Interface
         public Task<IBaseResponse<bool>> Delete(int id);
         public Task<IBaseResponse<Worker>> GetWorker(int id);
         public Task<IBaseResponse<IEnumerable<Worker>>> GetWorkers();
+        public Task<IBaseResponse<bool>> DeleteAll();
+        public Task<IBaseResponse<bool>> Update(int id);
+
     }
 }

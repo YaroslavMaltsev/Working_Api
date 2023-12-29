@@ -23,6 +23,13 @@ namespace Working_Api.DAL.Repositories
             return await Save();
         }
 
+        public async Task<bool> DeleteAll(IEnumerable<Post> entities)
+        {
+            _context.RemoveRange(entities);
+
+            return await Save();
+        }
+
         public async Task<List<Post>> GetAll()
         {
             return await _context.Posts.ToListAsync();
@@ -38,6 +45,13 @@ namespace Working_Api.DAL.Repositories
             var saved = await _context.SaveChangesAsync();
 
             return saved != 0 ? true : false;
+        }
+
+        public async Task<bool> Update(Post post)
+        {
+            _context.Update(post);
+
+            return await Save(); 
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Working_Api.Domain.DTOs;
+using Working_Api.Services.Implementation;
 using Working_Api.Services.Interface;
 
 namespace Working_Api.Controllers
@@ -9,7 +10,22 @@ namespace Working_Api.Controllers
     public class WorkerController(IWorkerService worcerService) : ControllerBase
     {
         private readonly IWorkerService _workerService = worcerService;
+        [HttpDelete]
+        [Route("WorkerDeleteAll")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> DeleteAll()
+        {
+            var workerDelete = await _workerService.DeleteAll();
 
+            if (workerDelete.StatusCode == 404)
+                return NotFound(workerDelete.Description);
+
+            if (workerDelete.StatusCode == 500)
+                return Problem(workerDelete.Description);
+
+            return NoContent();
+        }
         [HttpDelete]
         [Route("{id:int}", Name = "WorkerDelete")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

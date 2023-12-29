@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.EntityFrameworkCore;
 using Working_Api.DAL.Data;
 using Working_Api.DAL.Interfaces;
 using Working_Api.Domain.Entities;
@@ -23,6 +24,13 @@ namespace Working_Api.DAL.Repositories
             return await Save();
         }
 
+        public async Task<bool> DeleteAll(IEnumerable<Service> entities)
+        {
+            _context.RemoveRange(entities);
+
+            return await Save();
+        }
+
         public async Task<List<Service>> GetAll()
         {
             return await _context.Services.ToListAsync();
@@ -39,5 +47,14 @@ namespace Working_Api.DAL.Repositories
 
             return saved != 0 ? true : false;
         }
+
+        public async Task<bool> Update(Service entity)
+        {
+            _context.Update(entity);
+
+            return await Save();
+        }
+
+       
     }
 }

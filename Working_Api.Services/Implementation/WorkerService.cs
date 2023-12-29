@@ -27,7 +27,7 @@ namespace Working_Api.Services.Implementation
                 }
                 var post = await _postService.GetPost(workerDTO.PostId);
 
-                if(post.StatusCode == 404)
+                if (post.StatusCode == 404)
                 {
                     baseResponse.Description = $"Должность с таким id не найдена : id {workerDTO.PostId}";
                     baseResponse.StatusCode = 404;
@@ -36,7 +36,6 @@ namespace Working_Api.Services.Implementation
                 var worker = new Worker()
                 {
                     NameWorker = workerDTO.NameWorker,
-                    Post = post.Data,
                     PostId = post.Data.Id,
                     Surname = workerDTO.Surname,
                     Image = await _managerFile.SaveFile(workerDTO.Image)
@@ -53,7 +52,34 @@ namespace Working_Api.Services.Implementation
                 return baseResponse;
             }
         }
+        public async Task<IBaseResponse<bool>> DeleteAll()
+        {
 
+            var baseResponse = Factory<bool>.GetBaseResponse();
+            try
+            {
+
+                var employees = await _repository.GetAll();
+
+                if (employees == null)
+                {
+                    baseResponse.Description = $"Таблица пуста";
+                    baseResponse.StatusCode = 404;
+                    return baseResponse;
+                }
+                var workerDelete = await _repository.DeleteAll(employees);
+
+                baseResponse.Data = workerDelete;
+                baseResponse.StatusCode = 200;
+                return baseResponse;
+            }
+            catch (Exception ex)
+            {
+                baseResponse.Description = "Проблема с сервисом";
+                baseResponse.StatusCode = 500;
+                return baseResponse;
+            }
+        }
         public async Task<IBaseResponse<bool>> Delete(int id)
         {
             var baseResponse = Factory<bool>.GetBaseResponse();
@@ -145,5 +171,9 @@ namespace Working_Api.Services.Implementation
             }
         }
 
+        public Task<IBaseResponse<bool>> Update(int id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
